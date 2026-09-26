@@ -149,12 +149,16 @@ function fmtDays(n){
 }
 function status(t){
   const now=Date.now();
-  const base=t.lastDoneAt||t.createdAt||now;
+  const interval=(t.intervalDays||7)*86400000;
+  // lastDoneAt — момент, когда реально отметили сделанным.
+  // Если ещё не делали — createdAt хранит саму дату первого срока (пятницу),
+  // поэтому базу для расчёта сдвигаем на один интервал назад.
+  const base = t.lastDoneAt!=null ? t.lastDoneAt : (t.createdAt||now)-interval;
   const daysSince=(now-base)/86400000;
-  const ratio=daysSince/(t.intervalDays||3);
+  const ratio=daysSince/((t.intervalDays||7));
   let cls='green';
   if(ratio>=1) cls='red'; else if(ratio>=0.7) cls='yellow';
-  const overdueDays=daysSince-(t.intervalDays||3);
+  const overdueDays=daysSince-(t.intervalDays||7);
   return {cls, ratio, label: fmtDays(overdueDays)};
 }
 function nextPerson(t){
