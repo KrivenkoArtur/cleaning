@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Уборка">
+<meta name="theme-color" content="#f5f4f1">
+<title>Уборка</title>
+<style>
+:root{
+  --bg:#f5f4f1; --card:#ffffff; --text:#1c1b19; --sub:#7a766d; --line:#e7e4dd;
+  --accent:#3d6b52; --green:#3d8b5f; --yellow:#c98a1f; --red:#c94a3d; --shadow:0 1px 3px rgba(0,0,0,.06);
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#171614;--card:#232220;--text:#f2f0ea;--sub:#9b968b;--line:#33312c;--shadow:0 1px 3px rgba(0,0,0,.3);}
+}
+:root[data-theme="dark"]{--bg:#171614;--card:#232220;--text:#f2f0ea;--sub:#9b968b;--line:#33312c;--shadow:0 1px 3px rgba(0,0,0,.3);}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;background:var(--bg);color:var(--text)}
+body{padding:0 14px calc(24px + env(safe-area-inset-bottom,0px)) 14px; -webkit-tap-highlight-color:transparent}
+header{position:sticky;top:0;background:var(--bg);padding:calc(14px + env(safe-area-inset-top,0px)) 0 10px 0;z-index:5}
+h1{font-size:22px;margin:0 0 2px 0;font-weight:700}
+.sub{color:var(--sub);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.whoami{color:var(--accent);font-weight:600;text-decoration:underline;background:none;border:none;font-size:13px;padding:0}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden;border:1px solid var(--line)}
+.task{padding:13px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.emoji{font-size:24px;width:34px;text-align:center;flex-shrink:0}
+.tinfo{flex:1;min-width:0}
+.tname{font-weight:600;font-size:15px}
+.tmeta{font-size:12.5px;color:var(--sub);margin-top:2px}
+.pill{font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.pill.green{background:rgba(61,139,95,.15);color:var(--green)}
+.pill.yellow{background:rgba(201,138,31,.15);color:var(--yellow)}
+.pill.red{background:rgba(201,74,61,.16);color:var(--red)}
+.detail{padding:0 14px 14px 14px;border-top:1px solid var(--line);display:none}
+.detail.open{display:block}
+.detail p{font-size:13px;color:var(--sub);margin:10px 0}
+.row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+button.act{flex:1;min-width:100px;border:none;border-radius:12px;padding:11px;font-size:14px;font-weight:600;cursor:pointer}
+.act.done{background:var(--accent);color:#fff}
+.act.edit{background:var(--line);color:var(--text)}
+.act.del{background:none;color:var(--red);flex:0}
+.fab{position:fixed;right:18px;bottom:calc(20px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;font-size:28px;border:none;box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;z-index:10}
+.hist{margin-top:18px}
+.hist h2{font-size:14px;color:var(--sub);margin:0 0 8px 2px;font-weight:600}
+.hitem{font-size:13px;padding:8px 0;border-bottom:1px solid var(--line);color:var(--sub)}
+.hitem b{color:var(--text)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:20}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);width:100%;border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px)) 16px;max-height:85vh;overflow-y:auto}
+.modal h3{margin:0 0 14px 0;font-size:17px}
+.field{margin-bottom:12px}
+.field label{font-size:12.5px;color:var(--sub);display:block;margin-bottom:5px;font-weight:600}
+.field input[type=text],.field input[type=number]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:15px}
+.emojis{display:flex;gap:6px;flex-wrap:wrap}
+.emojis span{font-size:20px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);cursor:pointer}
+.emojis span.sel{border-color:var(--accent);background:rgba(61,107,82,.12)}
+.people{display:flex;gap:8px}
+.person{flex:1;padding:9px;border-radius:10px;border:1px solid var(--line);text-align:center;font-size:13px;cursor:pointer;font-weight:600}
+.person.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.picker{min-height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:20px}
+.picker h1{font-size:20px}
+.picker button{width:220px;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--text);font-size:16px;font-weight:600;cursor:pointer}
+.empty{color:var(--sub);font-size:14px;text-align:center;padding:30px 10px}
+</style>
+</head>
+<body>
+
+<div id="picker" class="picker" style="display:none">
+  <h1>Кто ты?</h1>
+  <button data-p="Артур">Артур</button>
+  <button data-p="Стас">Стас</button>
+  <button data-p="Рома">Рома</button>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <h1>Уборка</h1>
+    <div class="sub"><span id="statusline">Загрузка…</span><button class="whoami" id="whoami"></button></div>
+  </header>
+  <div id="list"></div>
+  <div class="hist" id="hist" style="display:none">
+    <h2>История</h2>
+    <div id="histlist"></div>
+  </div>
+</div>
+
+<button class="fab" id="addBtn" style="display:none">+</button>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Новая задача</h3>
+    <div class="field"><label>Название</label><input type="text" id="fName" placeholder="Например, Кухня"></div>
+    <div class="field"><label>Иконка</label>
+      <div class="emojis" id="fEmoji">
+        <span data-e="🧽">🧽</span><span data-e="🚿">🚿</span><span data-e="🧹">🧹</span>
+        <span data-e="🗑️">🗑️</span><span data-e="🍽️">🍽️</span><span data-e="🧺">🧺</span>
+        <span data-e="🪟">🪟</span><span data-e="🛁">🛁</span><span data-e="✨">✨</span>
+      </div>
+    </div>
+    <div class="field"><label>Раз в сколько дней</label><input type="number" id="fDays" value="3" min="1"></div>
+    <div class="field"><label>Кто по очереди делает</label>
+      <div class="people" id="fPeople">
+        <div class="person sel" data-p="Артур">Артур</div>
+        <div class="person sel" data-p="Стас">Стас</div>
+        <div class="person sel" data-p="Рома">Рома</div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="act edit" id="cancelBtn">Отмена</button>
+      <button class="act done" id="saveBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (compat SDK, works with plain <script> tags, no build step) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDn730rbt8i1gn6N-ZffIteZw-CcZnq1JM",
+  authDomain: "cleaning-90bc3.firebaseapp.com",
+  projectId: "cleaning-90bc3",
+  storageBucket: "cleaning-90bc3.firebasestorage.app",
+  messagingSenderId: "361173803120",
+  appId: "1:361173803120:web:3da8c316c7c4253efa14b5"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let me=localStorage.getItem('clean_me'), tasks=[], selEmoji='🧽';
+
+function fmtDays(n){
+  n=Math.round(n);
+  if(n<0) return 'через '+Math.abs(n)+' дн.';
+  if(n===0) return 'сегодня';
+  return 'просрочено на '+n+' дн.';
+}
+function status(t){
+  const now=Date.now();
+  const base=t.lastDoneAt||t.createdAt||now;
+  const daysSince=(now-base)/86400000;
+  const ratio=daysSince/(t.intervalDays||3);
+  let cls='green';
+  if(ratio>=1) cls='red'; else if(ratio>=0.7) cls='yellow';
+  const overdueDays=daysSince-(t.intervalDays||3);
+  return {cls, ratio, label: fmtDays(overdueDays)};
+}
+function nextPerson(t){
+  const rot=t.rotation&&t.rotation.length?t.rotation:['Артур','Стас','Рома'];
+  return rot[(t.nextIndex||0)%rot.length];
+}
+function render(){
+  const list=document.getElementById('list');
+  if(!tasks.length){ list.innerHTML='<div class="empty">Пока нет задач. Нажми + чтобы добавить первую.</div>'; return; }
+  const sorted=[...tasks].sort((a,b)=>status(b).ratio-status(a).ratio);
+  list.innerHTML=sorted.map(t=>{
+    const s=status(t);
+    const who=nextPerson(t);
+    const last=t.lastDoneAt ? new Date(t.lastDoneAt).toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+(t.lastDoneBy?', '+t.lastDoneBy:'') : 'ещё не делали';
+    return `<div class="card">
+      <div class="task" data-id="${t.id}">
+        <div class="emoji">${t.emoji||'🧽'}</div>
+        <div class="tinfo">
+          <div class="tname">${t.name}</div>
+          <div class="tmeta">Очередь: ${who} · раз в ${t.intervalDays} дн.</div>
+        </div>
+        <div class="pill ${s.cls}">${s.label}</div>
+      </div>
+      <div class="detail" id="d_${t.id}">
+        <p>Последний раз: ${last}</p>
+        <div class="row">
+          <button class="act done" data-done="${t.id}">Отметить сделанным</button>
+        </div>
+        <div class="row">
+          <button class="act del" data-del="${t.id}">Удалить задачу</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('.task').forEach(el=>{
+    el.onclick=()=>{
+      const d=document.getElementById('d_'+el.dataset.id);
+      const wasOpen=d.classList.contains('open');
+      document.querySelectorAll('.detail').forEach(x=>x.classList.remove('open'));
+      if(!wasOpen) d.classList.add('open');
+    };
+  });
+  document.querySelectorAll('[data-done]').forEach(el=>{
+    el.onclick=(e)=>{ e.stopPropagation(); markDone(el.dataset.done); };
+  });
+  document.querySelectorAll('[data-del]').forEach(el=>{
+    el.onclick=(e)=>{ e.stopPropagation(); if(confirm('Удалить задачу?')) delTask(el.dataset.del); };
+  });
+  document.getElementById('statusline').textContent = sorted.filter(t=>status(t).cls==='red').length
+    ? '🔴 Есть просроченные задачи' : 'Всё под контролем';
+}
+async function markDone(id){
+  const t=tasks.find(x=>x.id===id); if(!t) return;
+  const rot=t.rotation&&t.rotation.length?t.rotation:['Артур','Стас','Рома'];
+  const nextIndex=((t.nextIndex||0)+1)%rot.length;
+  await db.collection('tasks').doc(id).update({lastDoneAt:Date.now(), lastDoneBy:me, nextIndex});
+  await db.collection('history').add({taskName:t.name, emoji:t.emoji, doneBy:me, doneAt:Date.now()});
+}
+async function delTask(id){
+  await db.collection('tasks').doc(id).delete();
+}
+function renderHist(items){
+  const box=document.getElementById('hist');
+  if(!items.length){ box.style.display='none'; return; }
+  box.style.display='block';
+  document.getElementById('histlist').innerHTML=items.map(h=>{
+    const d=new Date(h.doneAt).toLocaleDateString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div class="hitem">${h.emoji||'✨'} <b>${h.doneBy}</b> закрыл(а) «${h.taskName}» — ${d}</div>`;
+  }).join('');
+}
+async function seedIfEmpty(){
+  const seedRef = db.collection('meta').doc('seed');
+  try{
+    let claimed=false;
+    await db.runTransaction(async tx=>{
+      const doc = await tx.get(seedRef);
+      if(doc.exists){ claimed=false; return; }
+      tx.set(seedRef, {seededAt:Date.now(), by:me});
+      claimed=true;
+    });
+    if(!claimed) return;
+    const snap = await db.collection('tasks').get();
+    if(!snap.empty) return;
+    const defaults=[
+      {name:'Кухня',emoji:'🍽️',intervalDays:2},
+      {name:'Ванная',emoji:'🛁',intervalDays:4},
+      {name:'Туалет',emoji:'🚿',intervalDays:4},
+      {name:'Полы',emoji:'🧹',intervalDays:5},
+      {name:'Мусор',emoji:'🗑️',intervalDays:2},
+    ];
+    for(const d of defaults){
+      await db.collection('tasks').add({...d, rotation:['Артур','Стас','Рома'], nextIndex:0, lastDoneAt:null, lastDoneBy:null, createdAt:Date.now()});
+    }
+  }catch(e){ console.error(e); }
+}
+function initModal(){
+  document.getElementById('addBtn').onclick=()=>{ document.getElementById('modalBg').classList.add('open'); };
+  document.getElementById('cancelBtn').onclick=()=>{ document.getElementById('modalBg').classList.remove('open'); };
+  document.querySelectorAll('#fEmoji span').forEach(s=>{
+    s.onclick=()=>{ document.querySelectorAll('#fEmoji span').forEach(x=>x.classList.remove('sel')); s.classList.add('sel'); selEmoji=s.dataset.e; };
+  });
+  document.querySelectorAll('#fPeople .person').forEach(p=>{
+    p.onclick=()=>{ p.classList.toggle('sel'); };
+  });
+  document.getElementById('saveBtn').onclick=async ()=>{
+    const name=document.getElementById('fName').value.trim();
+    if(!name) return;
+    const days=Math.max(1, parseInt(document.getElementById('fDays').value)||3);
+    const rotation=[...document.querySelectorAll('#fPeople .person.sel')].map(p=>p.dataset.p);
+    await db.collection('tasks').add({name, emoji:selEmoji, intervalDays:days, rotation:rotation.length?rotation:['Артур','Стас','Рома'], nextIndex:0, lastDoneAt:null, lastDoneBy:null, createdAt:Date.now()});
+    document.getElementById('fName').value='';
+    document.getElementById('modalBg').classList.remove('open');
+  };
+}
+async function boot(){
+  initModal();
+  if(!me){
+    document.getElementById('picker').style.display='flex';
+    document.querySelectorAll('#picker button').forEach(b=>{
+      b.onclick=()=>{ me=b.dataset.p; localStorage.setItem('clean_me',me); document.getElementById('picker').style.display='none'; start(); };
+    });
+  } else {
+    start();
+  }
+}
+async function start(){
+  document.getElementById('app').style.display='block';
+  document.getElementById('addBtn').style.display='flex';
+  document.getElementById('whoami').textContent='Ты: '+me;
+  document.getElementById('whoami').onclick=()=>{
+    localStorage.removeItem('clean_me'); location.reload();
+  };
+  await seedIfEmpty();
+  db.collection('tasks').onSnapshot(snap=>{
+    tasks = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    render();
+  }, err=>{ document.getElementById('statusline').textContent='Ошибка синхронизации: '+err.message; });
+  db.collection('history').orderBy('doneAt','desc').limit(12).onSnapshot(snap=>{
+    renderHist(snap.docs.map(d=>d.data()));
+  });
+}
+boot();
+</script>
+</body>
+</html>
