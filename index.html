@@ -80,6 +80,7 @@ button.act{flex:1;min-width:100px;border:none;border-radius:12px;padding:11px;fo
   <header>
     <h1>Уборка</h1>
     <div class="sub"><span id="statusline">Загрузка…</span><button class="whoami" id="whoami"></button></div>
+    <div class="sub" style="margin-top:2px">🗓️ День уборки — пятница</div>
   </header>
   <div id="list"></div>
   <div class="hist" id="hist" style="display:none">
@@ -93,7 +94,8 @@ button.act{flex:1;min-width:100px;border:none;border-radius:12px;padding:11px;fo
 <div class="modal-bg" id="modalBg">
   <div class="modal">
     <h3>Новая задача</h3>
-    <div class="field"><label>Название</label><input type="text" id="fName" placeholder="Например, Кухня"></div>
+    <div class="field"><label>Название</label><input type="text" id="fName" placeholder="Например, Вымыть пол"></div>
+    <div class="field"><label>Зона (необязательно)</label><input type="text" id="fZone" placeholder="Например, Кухня"></div>
     <div class="field"><label>Иконка</label>
       <div class="emojis" id="fEmoji">
         <span data-e="🧽">🧽</span><span data-e="🚿">🚿</span><span data-e="🧹">🧹</span>
@@ -101,7 +103,7 @@ button.act{flex:1;min-width:100px;border:none;border-radius:12px;padding:11px;fo
         <span data-e="🪟">🪟</span><span data-e="🛁">🛁</span><span data-e="✨">✨</span>
       </div>
     </div>
-    <div class="field"><label>Раз в сколько дней</label><input type="number" id="fDays" value="3" min="1"></div>
+    <div class="field"><label>Раз в сколько недель</label><input type="number" id="fDays" value="1" min="1"></div>
     <div class="field"><label>Кто по очереди делает</label>
       <div class="people" id="fPeople">
         <div class="person sel" data-p="Артур">Артур</div>
@@ -130,6 +132,8 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
+const MIGRATION_DATA = [{"zone":"Ванная","name":"Сменить зубную щетку","emoji":"🪥","intervalDays":84,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Вымыть пол","emoji":"🧹","intervalDays":14,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Ванная","name":"Туалетный ершик чистка","emoji":"🚽","intervalDays":14,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Ванная","name":"Сменить полотенца","emoji":"🧺","intervalDays":7,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Душевая кабинка","emoji":"🚿","intervalDays":28,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Ванная","name":"Вымыть туалет","emoji":"🚽","intervalDays":14,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Ванная","name":"Вымыть раковину","emoji":"🚰","intervalDays":14,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Вымыть зеркало","emoji":"🪞","intervalDays":14,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Ванная","name":"Дверные ручки и выключатели","emoji":"🚪","intervalDays":28,"anchor":"2026-10-09","rotation":["Рома","Артур","Стас"]},{"zone":"Ванная","name":"Убраться в полочках","emoji":"🗄️","intervalDays":84,"anchor":"2026-10-09","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Вентиляционная решетка чистка","emoji":"🌬️","intervalDays":168,"anchor":"2026-10-30","rotation":["Стас","Рома","Артур"]},{"zone":"Ванная","name":"Почистить стоки","emoji":"🕳️","intervalDays":56,"anchor":"2026-10-30","rotation":["Рома","Артур","Стас"]},{"zone":"Ванная","name":"Аэратор на кране","emoji":"🚰","intervalDays":364,"anchor":"2026-11-06","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Протереть стены","emoji":"🧽","intervalDays":112,"anchor":"2027-01-01","rotation":["Стас","Рома","Артур"]},{"zone":"Ванная","name":"Чистка стиральной машины","emoji":"🌀","intervalDays":168,"anchor":"2027-01-01","rotation":["Рома","Артур","Стас"]},{"zone":"Ванная","name":"Фильтр стиральной машины почистить","emoji":"🌀","intervalDays":168,"anchor":"2027-01-08","rotation":["Артур","Стас","Рома"]},{"zone":"Ванная","name":"Туалетный ершик замена","emoji":"🚽","intervalDays":168,"anchor":"2027-01-08","rotation":["Стас","Рома","Артур"]},{"zone":"Кухня","name":"Губка для посуды замена","emoji":"🧽","intervalDays":7,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Кухня","name":"Шкафчики внутри и снаружи протереть","emoji":"🗄️","intervalDays":56,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Кухня","name":"Сменить полотенца на кухне","emoji":"🧺","intervalDays":7,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Кухня","name":"Вымыть пол","emoji":"🧹","intervalDays":14,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Кухня","name":"Почистить стоки","emoji":"🕳️","intervalDays":56,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Кухня","name":"Вымыть раковину и протереть поверхность стола","emoji":"🍽️","intervalDays":14,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Кухня","name":"Вымыть мусорные ведра","emoji":"🗑️","intervalDays":28,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Кухня","name":"Дверные ручки и выключатели","emoji":"🚪","intervalDays":28,"anchor":"2026-10-09","rotation":["Артур","Стас","Рома"]},{"zone":"Кухня","name":"Плита снаружи и внутри почистить","emoji":"🔥","intervalDays":84,"anchor":"2026-10-09","rotation":["Стас","Рома","Артур"]},{"zone":"Кухня","name":"Аэратор на кухне","emoji":"🚰","intervalDays":364,"anchor":"2026-11-06","rotation":["Рома","Артур","Стас"]},{"zone":"Кухня","name":"Холодильник снаружи и внутри почистить","emoji":"🧊","intervalDays":168,"anchor":"2026-11-06","rotation":["Артур","Стас","Рома"]},{"zone":"Кухня","name":"Помыть стены на кухне","emoji":"🧽","intervalDays":168,"anchor":"2026-12-04","rotation":["Стас","Рома","Артур"]},{"zone":"Кухня","name":"Почистить вытяжку на кухне","emoji":"💨","intervalDays":168,"anchor":"2027-01-08","rotation":["Рома","Артур","Стас"]},{"zone":"Прихожая","name":"Вымыть пол","emoji":"🧹","intervalDays":14,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Прихожая","name":"Подмести придворный коврик","emoji":"🧹","intervalDays":14,"anchor":"2026-10-02","rotation":["Стас","Рома","Артур"]},{"zone":"Прихожая","name":"Дверные ручки и выключатели","emoji":"🚪","intervalDays":28,"anchor":"2026-10-09","rotation":["Рома","Артур","Стас"]},{"zone":"Прихожая","name":"Вымыть зеркало","emoji":"🪞","intervalDays":56,"anchor":"2026-11-06","rotation":["Артур","Стас","Рома"]},{"zone":"Прихожая","name":"Протереть стены","emoji":"🧽","intervalDays":364,"anchor":"2026-11-06","rotation":["Стас","Рома","Артур"]},{"zone":"Гостиная","name":"Вытереть пыль","emoji":"🪶","intervalDays":28,"anchor":"2026-10-02","rotation":["Рома","Артур","Стас"]},{"zone":"Гостиная","name":"Вымыть пол","emoji":"🧹","intervalDays":14,"anchor":"2026-10-02","rotation":["Артур","Стас","Рома"]},{"zone":"Гостиная","name":"Дверные ручки и выключатели","emoji":"🚪","intervalDays":28,"anchor":"2026-10-09","rotation":["Стас","Рома","Артур"]},{"zone":"Гостиная","name":"Помыть окна","emoji":"🪟","intervalDays":364,"anchor":"2026-11-06","rotation":["Рома","Артур","Стас"]}];
 
 let me=localStorage.getItem('clean_me'), tasks=[], selEmoji='🧽';
 
@@ -166,7 +170,7 @@ function render(){
         <div class="emoji">${t.emoji||'🧽'}</div>
         <div class="tinfo">
           <div class="tname">${t.name}</div>
-          <div class="tmeta">Очередь: ${who} · раз в ${t.intervalDays} дн.</div>
+          <div class="tmeta">${t.zone?t.zone+' · ':''}Очередь: ${who} · раз в ${Math.round((t.intervalDays||7)/7)} нед.</div>
         </div>
         <div class="pill ${s.cls}">${s.label}</div>
       </div>
@@ -217,28 +221,27 @@ function renderHist(items){
     return `<div class="hitem">${h.emoji||'✨'} <b>${h.doneBy}</b> закрыл(а) «${h.taskName}» — ${d}</div>`;
   }).join('');
 }
-async function seedIfEmpty(){
-  const seedRef = db.collection('meta').doc('seed');
+async function migrateV2(){
+  const flagRef = db.collection('meta').doc('migration_v2');
   try{
     let claimed=false;
     await db.runTransaction(async tx=>{
-      const doc = await tx.get(seedRef);
+      const doc = await tx.get(flagRef);
       if(doc.exists){ claimed=false; return; }
-      tx.set(seedRef, {seededAt:Date.now(), by:me});
+      tx.set(flagRef, {at:Date.now(), by:me});
       claimed=true;
     });
     if(!claimed) return;
-    const snap = await db.collection('tasks').get();
-    if(!snap.empty) return;
-    const defaults=[
-      {name:'Кухня',emoji:'🍽️',intervalDays:2},
-      {name:'Ванная',emoji:'🛁',intervalDays:4},
-      {name:'Туалет',emoji:'🚿',intervalDays:4},
-      {name:'Полы',emoji:'🧹',intervalDays:5},
-      {name:'Мусор',emoji:'🗑️',intervalDays:2},
-    ];
-    for(const d of defaults){
-      await db.collection('tasks').add({...d, rotation:['Артур','Стас','Рома'], nextIndex:0, lastDoneAt:null, lastDoneBy:null, createdAt:Date.now()});
+    const existing = await db.collection('tasks').get();
+    await Promise.all(existing.docs.map(d=>d.ref.delete()));
+    for(const t of MIGRATION_DATA){
+      await db.collection('tasks').add({
+        name:t.name, emoji:t.emoji, zone:t.zone,
+        intervalDays:t.intervalDays,
+        rotation:t.rotation, nextIndex:0,
+        lastDoneAt:null, lastDoneBy:null,
+        createdAt:new Date(t.anchor+'T00:00:00').getTime(),
+      });
     }
   }catch(e){ console.error(e); }
 }
@@ -254,10 +257,12 @@ function initModal(){
   document.getElementById('saveBtn').onclick=async ()=>{
     const name=document.getElementById('fName').value.trim();
     if(!name) return;
-    const days=Math.max(1, parseInt(document.getElementById('fDays').value)||3);
+    const zone=document.getElementById('fZone').value.trim();
+    const days=Math.max(1, parseInt(document.getElementById('fDays').value)||1)*7;
     const rotation=[...document.querySelectorAll('#fPeople .person.sel')].map(p=>p.dataset.p);
-    await db.collection('tasks').add({name, emoji:selEmoji, intervalDays:days, rotation:rotation.length?rotation:['Артур','Стас','Рома'], nextIndex:0, lastDoneAt:null, lastDoneBy:null, createdAt:Date.now()});
+    await db.collection('tasks').add({name, zone, emoji:selEmoji, intervalDays:days, rotation:rotation.length?rotation:['Артур','Стас','Рома'], nextIndex:0, lastDoneAt:null, lastDoneBy:null, createdAt:Date.now()});
     document.getElementById('fName').value='';
+    document.getElementById('fZone').value='';
     document.getElementById('modalBg').classList.remove('open');
   };
 }
@@ -279,7 +284,7 @@ async function start(){
   document.getElementById('whoami').onclick=()=>{
     localStorage.removeItem('clean_me'); location.reload();
   };
-  await seedIfEmpty();
+  await migrateV2();
   db.collection('tasks').onSnapshot(snap=>{
     tasks = snap.docs.map(d=>({id:d.id, ...d.data()}));
     render();
